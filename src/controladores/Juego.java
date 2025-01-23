@@ -3,25 +3,35 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * Clase encargada de la funcionalidad del juego
+ * 230135 - mjcb
+ */
 public class Juego extends JPanel implements ActionListener, KeyListener {
     private static final long serialVersionUID = 1L;
 	private final int ANCHO = 800;
     private final int ALTO = 600;
     private final Barra barra;
-    private final Barra barraSuperior; // Nueva barra superior para nivel intermedio
+    private final Barra barraSuperior;
     private final Bola bola;
     private final Ladrillo[] ladrillos;
     private final Timer timer;
     private int tiempoRestante;
     private int vidas;
     private int puntos;
-
+    
+    /**
+     * Método principal que controla la funcionalidad del juego
+     * 230135 - mjcb
+     */
     public Juego(int velocidad, int ladrillosTotales, boolean nivelIntermedio) {
         setPreferredSize(new Dimension(ANCHO, ALTO));
         setBackground(Color.BLACK);
 
         barra = new Barra(ANCHO / 2 - 50, ALTO - 30, 100);
-        barraSuperior = nivelIntermedio ? new Barra(ANCHO / 2 - 50, 50, 100) : null; // Solo para nivel intermedio
+        
+        // Solo para nivel intermedio
+        barraSuperior = nivelIntermedio ? new Barra(ANCHO / 2 - 50, 50, 100) : null;
         bola = new Bola(ANCHO / 2, ALTO / 2, velocidad);
 
         ladrillos = new Ladrillo[ladrillosTotales];
@@ -35,17 +45,25 @@ public class Juego extends JPanel implements ActionListener, KeyListener {
             for (int j = 0; j < columnas; j++) {
                 if (index < ladrillosTotales) {
                     int x = j * (ladrilloAncho + 5);
-                    int y = (nivelIntermedio ? 120 : 70) + i * (ladrilloAlto + 5); // Ajuste para espacio adicional
+                    
+                    // Ajuste para espacio adicional
+                    int y = (nivelIntermedio ? 120 : 70) + i * (ladrilloAlto + 5);
                     ladrillos[index++] = new Ladrillo(x, y, ladrilloAncho, ladrilloAlto);
                 }
             }
         }
-
-        tiempoRestante = (velocidad == 3) ? 600 : 1800; // Fácil: 600 segundos, Intermedio: 1800 segundos
-        vidas = 3; // Inicialización de las vidas
-        puntos = 0; // Inicialización de los puntos
-
-        timer = new Timer(1000 / 60, this); // Timer para actualizar el juego a 60 FPS
+        
+        // Fácil: 600 segundos, Intermedio: 1800 segundos
+        tiempoRestante = (velocidad == 3) ? 600 : 1800;
+        
+        // Inicialización de las vidas
+        vidas = 3;
+        
+        // Inicialización de los puntos
+        puntos = 0;
+        
+        // Timer para actualizar el juego a 60 FPS
+        timer = new Timer(1000 / 60, this);
         addKeyListener(this);
         setFocusable(true);
         timer.start();
@@ -59,7 +77,11 @@ public class Juego extends JPanel implements ActionListener, KeyListener {
             }
         }).start();
     }
-
+    
+    /**
+     * Método que inicia la partida
+     * 230135 - mjcb
+     */
     public void iniciar() {
         JFrame frame = new JFrame("Breakout");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -68,25 +90,38 @@ public class Juego extends JPanel implements ActionListener, KeyListener {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
-
+    
+    /**
+     * Método que muestra la pantalla final
+     * 230135 - mjcb
+     */
     private void mostrarPantallaFinal(String mensaje) {
         timer.stop();
-        int opcion = JOptionPane.showConfirmDialog(this, mensaje + "\n¿Quieres jugar de nuevo?", "Game Over", JOptionPane.YES_NO_OPTION);
+        int opcion = JOptionPane.showConfirmDialog(this, mensaje 
+        + "\n¿Quieres jugar de nuevo?", "Game Over", JOptionPane.YES_NO_OPTION);
         if (opcion == JOptionPane.YES_OPTION) {
             SwingUtilities.invokeLater(() -> {
-                Inicio.main(null); // Reiniciar el juego
+            	
+            	// Reiniciar el juego
+                Inicio.main(null);
             });
         } else {
             System.exit(0);
         }
     }
-
+    
+    /**
+     * Método que le da vida a los objetos de la pantalla de juego
+     * 230135 - mjcb
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         barra.dibujar(g);
-        if (barraSuperior != null) barraSuperior.dibujar(g); // Dibujar barra superior si existe
+        
+        // Dibujar barra superior si existe
+        if (barraSuperior != null) barraSuperior.dibujar(g);
         bola.dibujar(g);
 
         for (Ladrillo ladrillo : ladrillos) {
@@ -101,37 +136,51 @@ public class Juego extends JPanel implements ActionListener, KeyListener {
         g.drawString("Vidas: " + vidas, ANCHO - 100, 20);
         g.drawString("Puntos: " + puntos, ANCHO / 2 - 50, 20);
     }
-
+    
+    /**
+     * Método que controla los puntos ganados y la pérdida de las vidas
+     * 230135 - mjcb
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         bola.mover(ANCHO, ALTO);
 
         if (bola.getY() >= ALTO) {
             vidas--;
-            puntos = Math.max(0, puntos - 5); // Restar 5 puntos al perder una vida
+            
+         // Restar 5 puntos al perder una vida
+            puntos = Math.max(0, puntos - 5);
             if (vidas == 0) {
                 mostrarPantallaFinal("Has Perdido. ¡Fin del juego!\nPuntos totales: " + puntos);
             } else {
                 bola.resetPosition(ANCHO / 2, ALTO / 2);
             }
         }
-
-        puntos += bola.verificarColision(barra, ladrillos) * 10; // Sumar 10 puntos por ladrillo destruido
+        
+        // Sumar 10 puntos por ladrillo destruido
+        puntos += bola.verificarColision(barra, ladrillos) * 10;
         if (barraSuperior != null) {
-            bola.verificarColision(barraSuperior, ladrillos); // Verificar colisión con la barra superior
+        	
+        	// Verificar colisión con la barra superior
+            bola.verificarColision(barraSuperior, ladrillos);
         }
         repaint();
     }
-
+    
+    /**
+     * Método que controla el movimiento de la barra 
+     * superior en la dificultad intermedia
+     * 230135 - mjcb
+     */
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_LEFT) {
             barra.moverIzquierda();
-            if (barraSuperior != null) barraSuperior.moverIzquierda(); // Mover barra superior
+            if (barraSuperior != null) barraSuperior.moverIzquierda();
         }
         if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
             barra.moverDerecha();
-            if (barraSuperior != null) barraSuperior.moverDerecha(); // Mover barra superior
+            if (barraSuperior != null) barraSuperior.moverDerecha();
         }
     }
 
