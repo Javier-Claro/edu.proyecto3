@@ -16,11 +16,11 @@ public class Barra {
     }
 
     public void moverIzquierda() {
-        if (x > 0) x -= 15;
+        if (x > 0) x -= 20;
     }
 
     public void moverDerecha() {
-        if (x + ancho < 800) x += 15; // ANCHO = 800 en Juego
+        if (x + ancho < 800) x += 20; // ANCHO = 800 en Juego
     }
 
     public int getX() {

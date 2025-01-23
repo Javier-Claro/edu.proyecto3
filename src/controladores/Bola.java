@@ -28,7 +28,8 @@ public class Bola {
         }
     }
 
-    public void verificarColision(Barra barra, Ladrillo[] ladrillos) {
+    public int verificarColision(Barra barra, Ladrillo[] ladrillos) {
+        int puntosGanados = 0;
         if (y + 10 >= barra.getY() && x + 10 >= barra.getX() && x <= barra.getX() + barra.getAncho()) {
             velocidadY = -velocidadY;
         }
@@ -39,8 +40,20 @@ public class Bola {
                     && y + 10 >= ladrillo.getY() && y <= ladrillo.getY() + ladrillo.getAlto()) {
                 ladrillos[i] = null;
                 velocidadY = -velocidadY;
-                return;
+                puntosGanados++;
             }
         }
+        return puntosGanados;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void resetPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+        this.velocidadX = Math.abs(velocidadX);
+        this.velocidadY = -Math.abs(velocidadY);
     }
 }
